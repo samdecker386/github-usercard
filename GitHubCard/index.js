@@ -3,6 +3,18 @@
            https://api.github.com/users/<your name>
 */
 
+const cards = document.querySelector('.cards');
+
+axios.get('https://api.github.com/users/samdecker386')
+  .then(response => {
+    console.log(response.data);
+    const card = gitCard(response.data);
+    cards.append(card);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
@@ -26,6 +38,20 @@
 
 const followersArray = [];
 
+axios.get('https://api.github.com/users/samdecker386/followers')
+.then(response => {
+  console.log(response.data);
+  response.data.forEach(item => {
+    followersArray.push(item.url);
+  });
+  followersArray.forEach(item => {
+    axios.get(item)
+    .then(response => {
+      cards.appendChild(gitCard(response.data));
+    });
+  });
+});
+
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
 
@@ -46,7 +72,55 @@ const followersArray = [];
 
 */
 
-/* List of LS Instructors Github username's: 
+// create a function that will create a Git Hub user card that matches HTML
+function gitCard(user) {
+
+  // define new elements
+  const card = document.createElement('div');
+  const userImage = document.createElement('img');
+  const cardInfo = document.createElement('div');
+  const name = document.createElement('h3');
+  const userName = document.createElement('p');
+  const location = document.createElement('p');
+  const profile = document.createElement('p');
+  const profileLink = document.createElement('a');
+  const followers = document.createElement('p');
+  const following = document.createElement('p');
+  const bio = document.createElement('p');
+
+  // setup the structure of the elements
+  card.appendChild(userImage);
+  card.appendChild(cardInfo);
+  cardInfo.appendChild(name);
+  cardInfo.appendChild(userName);
+  cardInfo.appendChild(location);
+  cardInfo.appendChild(profile);
+  cardInfo.appendChild(followers);
+  cardInfo.appendChild(following);
+  cardInfo.appendChild(bio);
+  profile.appendChild(profileLink);
+
+  // add classes to elements
+  card.classList.add('card');
+  cardInfo.classList.add('card-info');
+  name.classList.add('name');
+  userName.classList.add('username');
+
+  // set src, and href, text content
+  userImage.src = user.avatar_url;
+  name.textContent = user.name;
+  userName.textContent = user.login;
+  location.textContent = user.location;
+  profileLink.textContent = user.html_url;
+  profileLink.href = user.html_url;
+  followers.textContent = user.followers;
+  following.textContent = user.following;
+  bio.textContent = user.bio;
+
+  return card;
+};
+
+/* List of LS Instructors Github username's:
   tetondan
   dustinmyers
   justsml
